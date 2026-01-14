@@ -32,6 +32,7 @@ services:
       context: .
     environment:
       PORT: 3000
+      DATABASE_URL: postgresql://webhookguard:webhookguard@postgres:5432/webhookguard?schema=public
 
     ports:
       - 3000:3000
