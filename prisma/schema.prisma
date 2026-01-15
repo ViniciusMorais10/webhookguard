@@ -25,6 +25,7 @@ model WebhookEvent {
   updatedAt DateTime @updatedAt
 
   @@map("webhookEvent")
+  @@unique([source, eventId])
 }
 
 
