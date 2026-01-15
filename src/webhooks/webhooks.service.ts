@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, WebhookStatus } from '@prisma/client';
+import { getWebhookQueue } from 'src/queue/webhook.queue';
 
 @Injectable()
 export class WebhooksService {
@@ -27,7 +28,7 @@ export class WebhooksService {
     }
 
     try {
-      return await this.prisma.webhookEvent.create({
+      const event = await this.prisma.webhookEvent.create({
         data: {
           source,
           eventId,
@@ -36,6 +37,11 @@ export class WebhooksService {
         },
         select: { id: true, status: true },
       });
+
+      const queue = getWebhookQueue();
+      await queue.add('deliver', { webhookEventId: event.id });
+
+      return event;
     } catch (error) {
       if (
         eventId &&
